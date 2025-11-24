@@ -4,7 +4,6 @@ static char	*ft_prefix(char type, char *num_char)
 {
 	char	*str;
 
-
 	str = malloc(3);
 	if (!str)
 		return (NULL);
@@ -20,85 +19,73 @@ static char	*ft_prefix(char type, char *num_char)
 	return (str);
 }
 
-static int	ft_flagminus(t_flags flag, t_hexa hexa, unsigned int n, int width)
+static int	ft_flagminus(t_format *format)
 {
-	int	printed;
-
-	printed = 0;
-	if (flag.minus)
+	if ((*format).flags.minus)
 	{
-		if (flag.hashtag && n != 0)
+		if ((*format).flags.hashtag && (*format).type.nu != 0)
 		{
-			ft_putstr(hexa.prefix);
-			printed += 2;
+			ft_putstr((*format).hexa.prefix);
+			(*format).logic.printed += 2;
 		}
-		printed += ft_padding(hexa.zeros, 0, '0');
-		printed += ft_putstr(hexa.num_char);
-		printed += ft_padding(width, hexa.total, ' ');
+		(*format).logic.printed += ft_padding((*format).hexa.zeros, 0, '0');
+		ft_putstr((*format).hexa.num_char);
+		(*format).logic.printed += ft_strlen((*format).hexa.num_char);
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).hexa.total, ' ');
 	}
-	return (printed);
+	return ((*format).logic.printed);
 }
 
-static int	ft_flagzero(t_flags flag, t_hexa hexa, unsigned int n, int width)
+static int	ft_flagzero(t_format *format)
 {
-	int	printed;
-
-	printed = 0;
-	if (flag.zero && !flag.point)
+	if ((*format).flags.zero && !(*format).logic.point)
 	{
-		if (flag.hashtag && n != 0)
+		if ((*format).flags.hashtag && (*format).type.nu != 0)
 		{
-			ft_putstr(hexa.prefix);
-			printed += ft_strlen(hexa.prefix);
-			hexa.total -= ft_strlen(hexa.prefix);
+			ft_putstr((*format).hexa.prefix);
+			(*format).logic.printed += ft_strlen((*format).hexa.prefix);
+			(*format).hexa.total -= ft_strlen((*format).hexa.prefix);
 		}
-		printed += ft_padding(width, hexa.total, '0');
-		ft_putstr(hexa.num_char);
-		printed += ft_strlen(hexa.num_char);
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).hexa.total, '0');
+		ft_putstr((*format).hexa.num_char);
+		(*format).logic.printed += ft_strlen((*format).hexa.num_char);
 	}
-	return (printed);
+	return ((*format).logic.printed);
 }
 
-static int	ft_noflag(t_flags flag, t_hexa hexa, unsigned int n, int width)
+static int	ft_noflag(t_format *format)
 {
-	int	printed;
-
-	printed = 0;
-	if (!flag.minus && !(flag.zero && !flag.point))
+	if (!(*format).flags.minus && !((*format).flags.zero && !(*format).logic.point))
 	{
-		printed += ft_padding(width, hexa.total, ' ');
-		if (flag.hashtag && n != 0)
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).hexa.total, ' ');
+		if ((*format).flags.hashtag && (*format).type.nu != 0)
 		{
-			ft_putstr(hexa.prefix);
-			printed += ft_strlen(hexa.prefix);
+			ft_putstr((*format).hexa.prefix);
+			(*format).logic.printed += ft_strlen((*format).hexa.prefix);
 		}
-		printed += ft_padding(hexa.zeros, 0, '0');
-		ft_putstr(hexa.num_char);
-		printed += ft_strlen(hexa.num_char);
+		(*format).logic.printed += ft_padding((*format).hexa.zeros, 0, '0');
+		ft_putstr((*format).hexa.num_char);
+		(*format).logic.printed += ft_strlen((*format).hexa.num_char);
 	}
-	return (printed);
+	return ((*format).logic.printed);
 }
 
-int	ft_typehexa(t_flags flag, unsigned int n, char type, int width, int precision)
+int	ft_typehexa(t_format *format)
 {
-	t_hexa	hexa;
-	int	len;
-	int	printed;
-
-	hexa.num_char = ft_hexa(n);
-	hexa.prefix = ft_prefix(type, hexa.num_char);
-	len = ft_strlen(hexa.num_char);
-	printed = 0;
-	hexa.zeros = 0;
-	if (flag.point && precision > len)
-		hexa.zeros = precision - len;
-	hexa.total = hexa.zeros + len;
-	if (flag.hashtag && n != 0)
-		hexa.total += 2;
-	printed += ft_flagminus(flag, hexa, n, width);
-	printed += ft_flagzero(flag, hexa, n, width);
-	printed += ft_noflag(flag, hexa, n, width);
-	free(hexa.prefix);
-	free(hexa.num_char);
-	return (printed);
+	(*format).hexa.num_char = ft_hexa((*format).type.nu);
+	(*format).hexa.prefix = ft_prefix((*format).logic.ct, (*format).hexa.num_char);
+	(*format).ints.len = ft_strlen((*format).hexa.num_char);
+	(*format).logic.printed = 0;
+	(*format).hexa.zeros = 0;
+	if ((*format).logic.point && (*format).logic.precision > (*format).ints.len)
+		(*format).hexa.zeros = (*format).logic.precision - (*format).ints.len;
+	(*format).hexa.total = (*format).hexa.zeros + (*format).ints.len;
+	if ((*format).flags.hashtag && (*format).type.nu != 0)
+		(*format).hexa.total += 2;
+	(*format).logic.printed += ft_flagminus(format);
+	(*format).logic.printed += ft_flagzero(format);
+	(*format).logic.printed += ft_noflag(format);
+	free((*format).hexa.prefix);
+	free((*format).hexa.num_char);
+	return ((*format).logic.printed);
 }

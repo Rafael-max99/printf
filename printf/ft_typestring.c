@@ -1,27 +1,23 @@
 #include "libftprintf.h"
 
-int	ft_typestring(t_flags flag, char *value, int width, int precision)
+int	ft_typestring(t_format *format)
 {
-	int	len;
-	int	printed;
-
-	printed = 0;
-	if (!value)
-		value = "(null)";
-	len = ft_strlen(value);
-	if (flag.point && precision < len)
-		len = precision;
-	if (flag.minus)
+	if (!(*format).type.str)
+		(*format).type.str = "(null)";
+	(*format).ints.len = ft_strlen((*format).type.str);
+	if ((*format).logic.point && (*format).logic.precision < (*format).ints.len)
+		(*format).ints.len = (*format).logic.precision;
+	if ((*format).flags.minus)
 	{
-		write (1, value, len);
-		printed += len;
-		printed += ft_padding(width, len, ' ');
+		write (1, (*format).type.str, (*format).ints.len);
+		(*format).logic.printed += (*format).ints.len;
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.len, ' ');
 	}
 	else
 	{
-		printed += ft_padding(width, len, ' ');
-		write (1, value, len);
-		printed += len;
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.len, ' ');
+		write (1, (*format).type.str, (*format).ints.len);
+		(*format).logic.printed += (*format).ints.len;
 	}
-	return (printed);
+	return ((*format).logic.printed);
 }

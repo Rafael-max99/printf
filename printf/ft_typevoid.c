@@ -1,30 +1,26 @@
 #include "libftprintf.h"
 
-int	ft_typevoid(t_flags flag, void *value, int width)
+int	ft_typevoid(t_format *format)
 {
-	int	len;
 	size_t	ptr;
-	char	*str;
-	int	printed;
 
-	ptr = (size_t)value;
-	str = ft_hexa(ptr);
-	len = ft_strlen(str) + 2;
-	printed = 0;
-	if (flag.minus)
+	ptr = (size_t)(*format).type.ptr;
+	(*format).type.str = ft_hexa(ptr);
+	(*format).ints.len = ft_strlen((*format).type.str) + 2;
+	if ((*format).flags.minus)
 	{
 		ft_putstr("0x");
-		ft_putstr(str);
-		printed += len;
-		printed += ft_padding(width, len, ' ');
+		ft_putstr((*format).type.str);
+		(*format).logic.printed += (*format).ints.len;
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.len, ' ');
 	}
 	else
 	{
-		printed += ft_padding(width, len, ' ');
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.len, ' ');
 		ft_putstr("0x");
-		ft_putstr(str);
-		printed += len;
+		ft_putstr((*format).type.str);
+		(*format).logic.printed += (*format).ints.len;
 	}
-	free(str);
-	return (printed);
+	free((*format).type.str);
+	return ((*format).logic.printed);
 }

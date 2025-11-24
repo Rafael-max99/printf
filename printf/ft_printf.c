@@ -1,489 +1,160 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdarg.h>
-
-typedef struct	s_flags
-{
-	int	minus;
-	int	zero;
-	int	plus;
-	int	space;
-	int	hashtag;
-	int	point;
-}		t_flags;
-
-typedef struct	s_types
-{
-	char	type;
-	int	width;
-}		t_types;
+#include "libftprintf.h"
 
 t_flags	ft_resetflags(void)
 {
-	t_flags	f;
+	t_flags	flag;
 
-	f.minus = 0;
-	f.zero = 0;
-	f.plus = 0;
-	f.space = 0;
-	f.hashtag = 0;
-	f.point = 0;
+	flag.minus = 0;
+	flag.zero = 0;
+	flag.plus = 0;
+	flag.space = 0;
+	flag.hashtag = 0;
 
-	return (f);
+	return (flag);
 }
 
-void	ft_putchar (char c)
+t_logic	ft_resetlogic(void)
 {
-	write (1, &c, 1);
+	t_logic	logic;
+
+	logic.width = 0;
+	logic.precision = -1;
+	logic.point = 0;
+	logic.ct = 0;
+	logic.printed = 0;
+
+	return (logic);
 }
 
-void	ft_putstr(char *str)
+static int	ft_choseflags(const char *fmt, t_format *format)
 {
-	while (*str)
+	while (fmt[(*format).logic.ct] == '-' || fmt[(*format).logic.ct] == '0' || fmt[(*format).logic.ct] == '+' 
+			|| fmt[(*format).logic.ct] == ' ' || fmt[(*format).logic.ct] == '#')
 	{
-		ft_putchar(*str);
-		str++;
+		if (fmt[(*format).logic.ct] == '-')
+			(*format).flags.minus = 1;
+		if (fmt[(*format).logic.ct] == '0')
+			(*format).flags.zero = 1;
+		if (fmt[(*format).logic.ct] == '+')
+			(*format).flags.plus = 1;
+		if (fmt[(*format).logic.ct] == ' ')
+			(*format).flags.space = 1;
+		if (fmt[(*format).logic.ct] == '#')
+			(*format).flags.hashtag = 1;
+		(*format).logic.ct++;
 	}
+	return ((*format).logic.ct);
 }
 
-void	ft_toupper(char *str)
+static int	ft_widthprecision(const char *fmt, t_format *format)
 {
-	int	x;
-
-	x = 0;
-	while (str[x])
+	(*format).logic.width = 0;
+	(*format).logic.precision = -1;
+	(*format).logic.point = 0;
+	while (fmt[(*format).logic.ct] >= '0' && fmt[(*format).logic.ct] <= '9')
 	{
-		if (str[x] >= 'a' && str[x] <= 'z')
-			str[x] -= 32;
-		x++;
+		(*format).logic.width = ((*format).logic.width * 10) + (fmt[(*format).logic.ct] - '0');
+		(*format).logic.ct++;
 	}
-}
-
-void    ft_putnbr(int n)
-{
-        int             x;
-        long    nb;
-        char    num_char[20];
-
-        x = 0;
-        nb = n;
-        if (nb == 0)
-		ft_putchar('0');
-        while (nb > 0)
-        {
-                num_char[x++] = (nb % 10) + '0';
-                nb /= 10;
-        }
-        while (x-- > 0)
-                ft_putchar(num_char[x]);
-}
-
-int	ft_strlen(char *str)
-{
-	int	len;
-
-	len = 0;
-	while (str[len])
-		len++;
-	return (len);
-}
-
-int	ft_numlen(int num)
-{
-	int	len;
-
-	len = 0;
-	if (num <= 0)
-		len = 1;
-	while (num != 0)
+	if (fmt[(*format).logic.ct] == '.')
 	{
-		num /= 10;
-		len++;
-	}
-	return (len);
-}
-
-char	*ft_hexa(size_t num)
-{
-	int	pos;
-	int	x;
-	char	*hex;
-	char	num_char[17];
-	char	*result;
-
-	pos = 0;
-	x = 0;
-	hex = "0123456789abcdef";
-	if (num == 0)
-	{
-		result = malloc(2);
-		result[0] = '0';
-		result[1] = '\0';
-		return (result);
-	}
-	while (num != 0)
-	{
-		num_char[pos++] = hex[num%16];
-		num = num/16;
-	}
-	result = malloc(pos + 1);
-	if (!result)
-		return (NULL);
-	while (x < pos)
-	{
-		result[x] = num_char[pos - 1 - x];
-		x++;
-	}
-	result[x] = '\0';
-	return (result);
-}
-
-void	ft_print_types(t_flags flag, void *value, char type, int width, int precision)
-{
-	char	c;
-	char	*str;
-	size_t	ptr;
-	int	len;
-
-	if (type == 'c')
-	{
-		c = *(char *)value;
-		if (flag.minus)
+		(*format).logic.point = 1;
+		(*format).logic.ct++;
+		(*format).logic.precision = 0;
+		while (fmt[(*format).logic.ct] >= '0' && fmt[(*format).logic.ct] <= '9')
 		{
-			ft_putchar(c);
-			while (width-- > 1)
-				ft_putchar(' ');
-		}
-		else
-		{
-			while (width-- > 1)
-				ft_putchar(' ');
-			ft_putchar(c);
+			(*format).logic.precision = ((*format).logic.precision * 10) + (fmt[(*format).logic.ct] - '0');
+			(*format).logic.ct++;
 		}
 	}
-	else if (type == 's')
-	{
-		str = (char *)value;
-		if (!str)
-			str = "(null)";
-		len = ft_strlen(str);
-		if (flag.point && precision < len)
-			len = precision;
-		if (flag.minus)
-                {
-                        write (1, str, len);
-                        while (width-- > len)
-                                ft_putchar(' ');
-                }
-                else
-                {
-                        while (width-- > len)
-                                ft_putchar(' ');
-                        write (1, str, len);
-                }
-	}
-	else if (type == 'p')
-	{
-		ptr = (size_t)value;
-		str = ft_hexa(ptr);
-		len = ft_strlen(str) + 2;
-		if (flag.minus)
-		{
-			ft_putstr("0x");
-			ft_putstr(str);
-		while (width-- > len)
-			ft_putchar(' ');
-		}
-		else
-		{
-			while (width-- > len)
-				ft_putchar(' ');
-			ft_putstr("0x");
-			ft_putstr(str);
-		}
-		free(str);
-	}
+	return ((*format).logic.ct);
 }
 
-void	ft_print_un_int(t_flags flag, unsigned int n, int width, int precision)
+static int	ft_chosetype1(char *fmt, va_list *args, t_format *format)
 {
-	int	len;
-	int	zeros;
-	int	total;
+	if (fmt[(*format).logic.ct] == 'c')
+	{
+		(*format).type.c = va_arg(*args, int);
+		(*format).logic.printed += ft_typechar(format);
+		return ((*format).logic.ct + 1);
+	}
+	else if (fmt[(*format).logic.ct] == 's')
+	{
+		(*format).type.str = va_arg(*args, char *);
+		(*format).logic.printed += ft_typestring(format);
+		return ((*format).logic.ct + 1);
+	}
+	else if (fmt[(*format).logic.ct] == 'p')
+	{
+		(*format).type.ptr = va_arg(*args, void *);
+		(*format).logic.printed += ft_typevoid(format);
+		return ((*format).logic.ct + 1);
+	}
+	else if (fmt[(*format).logic.ct] == 'd' || fmt[(*format).logic.ct] == 'i')
+	{
+		(*format).type.n = va_arg(*args, int);
+		(*format).logic.printed += ft_typeint(format);
+		return ((*format).logic.ct + 1);
+	}
+	return (0);
+}
 
-	len = ft_numlen(n);
-	zeros = 0;
-	total = len;
-	if (n == 0 && flag.point && precision == 0)
-		len = 0;
-	if (flag.point && precision > len)
+static int	ft_chosetype2(char *fmt, va_list *args, t_format *format)
+{
+	if (fmt[(*format).logic.ct] == 'u')
 	{
-		zeros = precision - len;
-		flag.zero = 0;
-		total = zeros + len;
+		(*format).type.nu = va_arg(*args, unsigned int);
+		(*format).logic.printed += ft_typeunsint(format);
+		return ((*format).logic.ct + 1);
 	}
-	if (flag.minus)
+	else if (fmt[(*format).logic.ct] == 'x' || fmt[(*format).logic.ct] == 'X')
 	{
-		while (zeros-- > 0)
-			ft_putchar('0');
-		if (len > 0)
-			ft_putnbr(n);
-		while (width-- > total)
-			ft_putchar(' ');
+		(*format).type.nu = va_arg(*args, unsigned int);
+		(*format).logic.printed += ft_typehexa(format);
+		return ((*format).logic.ct + 1);
 	}
-	else if (flag.zero && !flag.point)
+	else if (fmt[(*format).logic.ct] == '%')
 	{
-		while (width-- > total)
-			ft_putchar('0');
-		if (len > 0)
-			ft_putnbr(n);
+		ft_putchar('%');
+		(*format).logic.printed++;
+		return ((*format).logic.ct + 1);
 	}
 	else
 	{
-		while (width-- > total)
-			ft_putchar(' ');
-		while (zeros-- > 0)
-			ft_putchar('0');
-		if (len > 0)
-			ft_putnbr(n);
-	}
-}
-
-void	ft_print_hexa(t_flags flag, unsigned int n, char type, int width, int precision)
-{
-	int     len;
-	char	str[3];
-	char	*num_char;
-	int	zeros;
-	int	total;
-
-	num_char = ft_hexa(n);
-	str[0] = '0';
-	if (type == 'x')
-		str[1] = 'x';
-	else if (type == 'X')
-	{
-		str[1] = 'X';
-		ft_toupper(num_char);
-	}
-	str[2] = '\0';
-	len = ft_strlen(num_char);
-	zeros = 0;
-	if (flag.point && precision > len)
-		zeros = precision - len;
-	total = zeros + len;
-	if (flag.hashtag && n != 0)
-		total += 2;
-        if (flag.minus)
-        {
-		if (flag.hashtag && n != 0)
-			ft_putstr(str);
-		while (zeros-- > 0)
-			ft_putchar('0');
-                ft_putstr(num_char);
-                while (width-- > total)
-                        ft_putchar(' ');
-        }
-        else if (flag.zero && !flag.point)
-        {
-		if (flag.hashtag && n != 0)
-		{
-			ft_putstr(str);
-			total -= 2;
-		}
-                while (width-- > total)
-                        ft_putchar('0');
-                ft_putstr(num_char);
-        }
-        else
-        {
-                while (width-- > total)
-			ft_putchar(' ');
-		if (flag.hashtag && n != 0)
-			ft_putstr(str);
-		while (zeros-- > 0)
-			ft_putchar('0');
-                ft_putstr(num_char);
-        }
-	free(num_char);
-}
-
-void	ft_print_ints(t_flags flag, int n, int width, int precision)
-{
-	int	len;
-	long	nb;
-	int	zeros;
-	int	total;
-
-	nb = n;
-	zeros = 0;
-	if (nb < 0)
-		nb = -nb;
-	len = ft_numlen(nb);
-	if (nb == 0 && flag.point && precision == 0)
-		len = 0;
-	total = len;
-	if (flag.point && precision > len)
-	{
-		zeros = precision - len;
-		flag.zero = 0;
-		total = zeros + len;
-	}
-	if (flag.plus && n >= 0)
-		total++;
-	else if (flag.space && n >= 0)
-		total++;
-	if (flag.minus)
-	{
-		if (n < 0)
-			ft_putchar('-');
-		else if (flag.plus)
-			ft_putchar('+');
-		else if (flag.space)
-			ft_putchar(' ');
-		while (zeros-- > 0)
-			ft_putchar('0');
-		if (len > 0)
-			ft_putnbr(nb);
-		while (width-- > total)
-			ft_putchar(' ');
-	}
-	else if (flag.zero && !flag.point)
-	{
-		if (n < 0)
-			ft_putchar('-');
-		else if (flag.plus)
-			ft_putchar('+');
-		else if (flag.space)
-			ft_putchar(' ');
-		while (width-- > total)
-			ft_putchar('0');
-		if (len > 0)
-			ft_putnbr(nb);
-	}
-	else
-	{
-		while (width-- > total)
-			ft_putchar(' ');
-		if (n < 0)
-			ft_putchar('-');
-		else if (flag.plus)
-			ft_putchar('+');
-		else if (flag.space)
-			ft_putchar(' ');
-		while (zeros-- > 0)
-			ft_putchar('0');
-		if (len > 0)
-			ft_putnbr(nb);
+		ft_putchar(fmt[(*format).logic.ct]);
+		(*format).logic.printed++;
+		return ((*format).logic.ct + 1);
 	}
 }
 
 int	ft_printf(const char *fmt, ...)
 {
 	va_list	args;
-	int	ct;
-	char	*str;
-	char	c;
-	int	n;
-	unsigned int	nu;
-	void	*ptr;
-	int	width;
-	int	num_len;
-	t_flags	flags;
-	int	precision;
+	t_format	format;
+	int	temp_ct;
 
+	format.flags = ft_resetflags();
+	format.logic = ft_resetlogic();
 	va_start(args, fmt);
-	ct = 0;
-
-	while (fmt[ct])
+	while (fmt[format.logic.ct])
 	{
-		if (fmt[ct] == '%')
+		if (fmt[format.logic.ct] == '%')
 		{
-			flags = ft_resetflags();
-			width = 0;
-			ct++;
-			while (fmt[ct] == '-' || fmt[ct] == '0' || fmt[ct] == '+' || fmt[ct] == ' ' || fmt[ct] == '#')
-			{
-				if (fmt[ct] == '-')
-					flags.minus = 1;
-				if (fmt[ct] == '0')
-					flags.zero = 1;
-				if (fmt[ct] == '+')
-					flags.plus = 1;
-				if (fmt[ct] == ' ')
-					flags.space = 1;
-				if (fmt[ct] == '#')
-					flags.hashtag = 1;
-				ct++;
-			}
-			while (fmt[ct] >= '0' && fmt[ct] <= '9')
-			{
-				width = (width * 10) + (fmt[ct] - '0');
-				ct++;
-			}
-			precision = -1;
-			if (fmt[ct] == '.')
-			{
-				flags.point = 1;
-				ct++;
-				precision = 0;
-				while (fmt[ct] >= '0' && fmt[ct] <= '9')
-				{
-					precision = (precision * 10) + (fmt[ct] - '0');
-					ct++;
-				}
-			}
-			if (fmt[ct] == 'c')
-			{
-				c = va_arg(args, int);
-				ft_typechar(flags, c, width);
-			}
-			else if (fmt[ct] == 's')
-			{
-				str = va_arg(args, char *);
-				ft_typestring(flags, str, width, precision);
-			}
-			else if (fmt[ct] == 'p')
-			{
-				ptr = va_arg(args, void *);
-				ft_typevoid(flags, ptr, width);
-			}
-			else if (fmt[ct] == 'd' || fmt[ct] == 'i')
-			{
-				n = va_arg(args, int);
-				ft_print_ints(flags, n, width, precision);
-			}
-			else if (fmt[ct] == 'u')
-			{
-				nu = va_arg(args, unsigned int);
-				ft_typeunsint(flags, nu, width, precision);
-			}
-			else if (fmt[ct] == 'x' || fmt[ct] == 'X')
-			{
-				nu = va_arg(args, unsigned int);
-				ft_print_hexa(flags, nu, fmt[ct], width, precision);
-			}
-			else if (fmt[ct] == '%')
-				ft_putchar('%');
+			format.logic.ct++;
+			format.logic.ct = ft_choseflags(fmt, &format);
+			format.logic.ct = ft_widthprecision(fmt, &format);
+			temp_ct = ft_chosetype1(fmt, &args, &format);
+			if (temp_ct)
+				format.logic.ct = temp_ct;
 			else
-				ft_putchar(fmt[ct]);
+				format.logic.ct = ft_chosetype2(fmt, &args, &format);
 		}
 		else
-			ft_putchar(fmt[ct]);
-		ct++;
+		{
+			ft_putchar(fmt[format.logic.ct++]);
+			format.logic.printed++;
+		}
 	}
 	va_end(args);
-	return (ct);
-}
-
-int	main(void)
-{
-	int	x = 42;
-	int	*ptr = &x;
-
-	ft_printf("%p\n", ptr);
-	ft_printf("%0#10x\n", 42);
-	ft_printf("%+.5u\n", 42);
-	ft_printf("%0.d", 0);
-	return (0);
+	return (format.logic.printed);
 }

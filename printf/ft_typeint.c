@@ -1,18 +1,18 @@
 #include "libftprintf.h"
 
-static int	ft_putsign(t_flags flag, int n)
+static int	ft_putsign(t_format *format)
 {
-	if (n < 0)
+	if ((*format).type.n < 0)
 	{
 		ft_putchar('-');
 		return (1);
 	}
-	else if (flag.plus)
+	else if ((*format).flags.plus)
 	{
 		ft_putchar('+');
 		return (1);
 	}
-	else if (flag.space)
+	else if ((*format).flags.space)
 	{
 		ft_putchar(' ');
 		return (1);
@@ -20,87 +20,74 @@ static int	ft_putsign(t_flags flag, int n)
 	return (0);
 }
 
-static int	ft_flagminus(t_flags flag, t_ints num, int n, int width)
+static int	ft_flagminus(t_format *format)
 {
-	int	printed;
-
-	printed	= 0;
-	if (flag.minus)
+	if ((*format).flags.minus)
 	{
-		printed += ft_putsign(flag, n);
-		printed += ft_padding(num.zeros, 0, '0');
-		if (num.len > 0)
+		(*format).logic.printed += ft_putsign(format);
+		(*format).logic.printed += ft_padding((*format).ints.zeros, 0, '0');
+		if ((*format).ints.len > 0)
 		{
-			ft_putnbr(num.nb);
-			printed += num.len;
+			ft_putnbr((*format).ints.nb);
+			(*format).logic.printed += (*format).ints.len;
 		}
-		printed += ft_padding(width, num.total, ' ');
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.total, ' ');
 	}
-		return (printed);
+		return ((*format).logic.printed);
 }
 
-static int	ft_flagzero(t_flags flag, t_ints num, int n, int width)
+static int	ft_flagzero(t_format *format)
 {
-	int	printed;
-
-	printed = 0;
-	if (flag.zero && !flag.point)
+	if ((*format).flags.zero && !(*format).logic.point)
 	{
-		printed += ft_putsign(flag, n);
-		printed += ft_padding(width, num.total, '0');
-		if (num.len > 0)
+		(*format).logic.printed += ft_putsign(format);
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.total, '0');
+		if ((*format).ints.len > 0)
 		{
-			ft_putnbr(num.nb);
-			printed += num.len;
+			ft_putnbr((*format).ints.nb);
+			(*format).logic.printed += (*format).ints.len;
 		}
 	}
-	return (printed);
+	return ((*format).logic.printed);
 }
 
-static int	ft_noflag(t_flags flag, t_ints num, int n, int width)
+static int	ft_noflag(t_format *format, int n)
 {
-	int	printed;
-
-	printed = 0;
-	if (!flag.minus && !(flag.zero && !flag.point))
+	if (!(*format).flags.minus && !((*format).flags.zero && !(*format).logic.point))
 	{
-		printed += ft_padding(width, num.total, ' ');
-		printed += ft_putsign(flag, n);
-		printed += ft_padding(num.zeros, 0, '0');
-		if (num.len > 0)
+		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.total, ' ');
+		(*format).logic.printed += ft_putsign(format);
+		(*format).logic.printed += ft_padding((*format).ints.zeros, 0, '0');
+		if ((*format).ints.len > 0)
 		{
-			ft_putnbr(num.nb);
-			printed += num.len;
+			ft_putnbr((*format).ints.nb);
+			(*format).logic.printed += (*format).ints.len;
 		}
 	}
-	return (printed);
+	return ((*format).logic.printed);
 }
 
-int	ft_typeint(t_flags flag, int n, int width, int precision)
+int	ft_typeint(t_format *format)
 {
-	t_ints	num;
-	int	printed;
-
-	num.nb = n;
-	num.zeros = 0;
-	printed = 0;
-	num.nb = ft_negnum(num.nb);
-	num.len = ft_numlen(num.nb);
-	if (num.nb == 0 && flag.point && precision == 0)
-		num.len = 0;
-	num.total = num.len;
-	if (flag.point && precision > num.len)
+	(*format).ints.nb = (*format).type.n;
+	(*format).ints.zeros = 0;
+	(*format).ints.nb = ft_negnum((*format).ints.nb);
+	(*format).ints.len = ft_numlen((*format).ints.nb);
+	if ((*format).ints.nb == 0 && (*format).logic.point && (*format).logic.precision == 0)
+		(*format).ints.len = 0;
+	(*format).ints.total = (*format).ints.len;
+	if ((*format).logic.point && (*format).logic.precision > (*format).ints.len)
 	{
-		num.zeros = precision - num.len;
-		flag.zero = 0;
-		num.total = num.zeros + num.len;
+		(*format).ints.zeros = (*format).logic.precision - (*format)..len;
+		(*format).flags.zero = 0;
+		(*format).ints.total = (*format).ints.zeros + (*format).ints.len;
 	}
-	if (flag.plus && n >= 0)
-		num.total++;
-	else if (flag.space && n >= 0)
-		num.total++;
-	printed += ft_flagminus(flag, num, n, width);
-	printed += ft_flagzero(flag, num, n, width);
-	printed += ft_noflag(flag, num, n, width);
-	return (printed);
+	if ((*format).flags.plus && (*format).type.n >= 0)
+		(*format).ints.total++;
+	else if ((*format).flags.space && (*format).type.n >= 0)
+		(*format).ints.total++;
+	(*format).logic.printed += ft_flagminus(format);
+	(*format).logic.printed += ft_flagzero(format);
+	(*format).logic.printed += ft_noflag(format);
+	return ((*format).logic.printed);
 }

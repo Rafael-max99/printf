@@ -1,19 +1,17 @@
 #include "libftprintf.h"
 
-int	ft_typechar(t_flags flag, char value, int width)
+int	ft_typechar(t_format *format)
 {
-	int	printed;
-
-	printed = 1;
-	if (flag.minus)
+	(*format).logic.printed += 1;
+	if ((*format).flags.minus)
 	{
-		ft_putchar(value);
-		printed += ft_padding(width, 1, ' ');
+		ft_putchar((*format).type.c);
+		(*format).logic.printed += ft_padding((*format).logic.width, 1, ' ');
 	}
 	else
 	{
-		printed += ft_padding(width, 1, ' ');
-		ft_putchar(value);
+		(*format).logic.printed += ft_padding((*format).logic.width, 1, ' ');
+		ft_putchar((*format).type.c);
 	}
-	return (printed);
+	return ((*format).logic.printed);
 }

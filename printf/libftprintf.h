@@ -60,6 +60,8 @@ typedef struct	s_format
 {
 	t_flags	flags;
 	t_logic	logic;
+	t_hexa	hexa;
+	t_ints	ints;
 	t_type	type;
 }		t_format;
 
