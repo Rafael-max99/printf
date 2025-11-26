@@ -1,6 +1,6 @@
 #include "libftprintf.h"
 
-void	ft_putnbr(int n)
+void	ft_putnbr(long n)
 {
 	int	pos;
 	long	nb;

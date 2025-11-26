@@ -44,7 +44,6 @@ static int	ft_flagzero(t_format *format)
 		{
 			ft_putstr((*format).hexa.prefix);
 			(*format).logic.printed += ft_strlen((*format).hexa.prefix);
-			(*format).hexa.total -= ft_strlen((*format).hexa.prefix);
 		}
 		(*format).logic.printed += ft_padding((*format).logic.width, (*format).hexa.total, '0');
 		ft_putstr((*format).hexa.num_char);
@@ -70,12 +69,11 @@ static int	ft_noflag(t_format *format)
 	return ((*format).logic.printed);
 }
 
-int	ft_typehexa(t_format *format)
+int	ft_typehexa(t_format *format, char type)
 {
 	(*format).hexa.num_char = ft_hexa((*format).type.nu);
-	(*format).hexa.prefix = ft_prefix((*format).logic.ct, (*format).hexa.num_char);
+	(*format).hexa.prefix = ft_prefix(type, (*format).hexa.num_char);
 	(*format).ints.len = ft_strlen((*format).hexa.num_char);
-	(*format).logic.printed = 0;
 	(*format).hexa.zeros = 0;
 	if ((*format).logic.point && (*format).logic.precision > (*format).ints.len)
 		(*format).hexa.zeros = (*format).logic.precision - (*format).ints.len;

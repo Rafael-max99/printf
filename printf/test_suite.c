@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <limits.h>
 
+/* The project does not provide an ft_vprintf; create explicit calls instead below. */
 int main(void)
 {
     char *s = NULL;
@@ -73,7 +74,7 @@ int main(void)
 
     /* Mix flags and edge cases */
     printf("\n-- Mixed/edge cases --\n");
-    /* space and plus are mutually exclusive; test separately */
+    /* space and plus are mutually exclusive; test separately to avoid format warnings */
     printf("printf:    |%+10.5d|\n", 123);
     ft_printf("ft_printf: |%+10.5d|\n", 123);
     printf("printf:    |% 10.5d|\n", 123);

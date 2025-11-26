@@ -1,31 +1,5 @@
 #include "libftprintf.h"
 
-t_flags	ft_resetflags(void)
-{
-	t_flags	flag;
-
-	flag.minus = 0;
-	flag.zero = 0;
-	flag.plus = 0;
-	flag.space = 0;
-	flag.hashtag = 0;
-
-	return (flag);
-}
-
-t_logic	ft_resetlogic(void)
-{
-	t_logic	logic;
-
-	logic.width = 0;
-	logic.precision = -1;
-	logic.point = 0;
-	logic.ct = 0;
-	logic.printed = 0;
-
-	return (logic);
-}
-
 static int	ft_choseflags(const char *fmt, t_format *format)
 {
 	while (fmt[(*format).logic.ct] == '-' || fmt[(*format).logic.ct] == '0' || fmt[(*format).logic.ct] == '+' 
@@ -70,7 +44,7 @@ static int	ft_widthprecision(const char *fmt, t_format *format)
 	return ((*format).logic.ct);
 }
 
-static int	ft_chosetype1(char *fmt, va_list *args, t_format *format)
+static int	ft_chosetype1(const char *fmt, va_list *args, t_format *format)
 {
 	if (fmt[(*format).logic.ct] == 'c')
 	{
@@ -99,7 +73,7 @@ static int	ft_chosetype1(char *fmt, va_list *args, t_format *format)
 	return (0);
 }
 
-static int	ft_chosetype2(char *fmt, va_list *args, t_format *format)
+static int	ft_chosetype2(const char *fmt, va_list *args, t_format *format)
 {
 	if (fmt[(*format).logic.ct] == 'u')
 	{
@@ -110,7 +84,7 @@ static int	ft_chosetype2(char *fmt, va_list *args, t_format *format)
 	else if (fmt[(*format).logic.ct] == 'x' || fmt[(*format).logic.ct] == 'X')
 	{
 		(*format).type.nu = va_arg(*args, unsigned int);
-		(*format).logic.printed += ft_typehexa(format);
+		(*format).logic.printed += ft_typehexa(format, fmt[(*format).logic.ct]);
 		return ((*format).logic.ct + 1);
 	}
 	else if (fmt[(*format).logic.ct] == '%')
@@ -141,6 +115,8 @@ int	ft_printf(const char *fmt, ...)
 		if (fmt[format.logic.ct] == '%')
 		{
 			format.logic.ct++;
+			/* reset flags for this conversion (width/precision are reset in ft_widthprecision) */
+			format.flags = ft_resetflags();
 			format.logic.ct = ft_choseflags(fmt, &format);
 			format.logic.ct = ft_widthprecision(fmt, &format);
 			temp_ct = ft_chosetype1(fmt, &args, &format);

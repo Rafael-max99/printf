@@ -7,7 +7,7 @@ static int	ft_flagminus(t_format *format)
 		(*format).logic.printed += ft_padding((*format).ints.zeros, 0, '0');
 		if ((*format).ints.len > 0)
 		{
-			ft_putnbr((*format).type.nu);
+			ft_putunbr((*format).type.nu);
 			(*format).logic.printed += (*format).ints.len;
 		}
 		(*format).logic.printed += ft_padding((*format).logic.width, (*format).ints.total, ' ');

@@ -1,6 +1,6 @@
 #include "libftprintf.h"
 
-int	ft_numlen(int num)
+int	ft_numlen(long num)
 {
 	int	len;
 

@@ -12,15 +12,7 @@ typedef struct	s_flags
 	int	plus;
 	int	space;
 	int	hashtag;
-}		t_flags;
-
-t_flags	ft_resetflags(void);
-void	ft_putchar(char c);
-void	ft_putstr(char *str);
-void	ft_toupper(char *str);
-void	ft_putnbr(int n);
-int	ft_strlen(char *str);
-int	ft_numlen(int num);
+}       t_flags;
 
 typedef struct	s_hexa
 {
@@ -28,7 +20,7 @@ typedef struct	s_hexa
 	int	zeros;
 	char	*prefix;
 	char	*num_char;
-}		t_hexa;
+}       t_hexa;
 
 typedef struct	s_ints
 {
@@ -36,7 +28,7 @@ typedef struct	s_ints
 	long	nb;
 	int	zeros;
 	int	total;
-}		t_ints;
+}       t_ints;
 
 typedef struct	s_logic
 {
@@ -45,7 +37,7 @@ typedef struct	s_logic
 	int	point;
 	int	ct;
 	int	printed;
-}		t_logic;
+}       t_logic;
 
 typedef struct	s_type
 {
@@ -54,7 +46,7 @@ typedef struct	s_type
 	void	*ptr;
 	int	n;
 	unsigned int	nu;
-}		t_type;
+}       t_type;
 
 typedef struct	s_format
 {
@@ -63,6 +55,26 @@ typedef struct	s_format
 	t_hexa	hexa;
 	t_ints	ints;
 	t_type	type;
-}		t_format;
+}       t_format;
+
+t_flags	ft_resetflags(void);
+t_logic	ft_resetlogic(void);
+void	ft_putchar(char c);
+void	ft_putstr(char *str);
+void	ft_toupper(char *str);
+void	ft_putnbr(long n);
+void	ft_putunbr(unsigned int n);
+int	ft_strlen(char *str);
+int	ft_numlen(long num);
+char	*ft_hexa(size_t num);
+int	ft_typechar(t_format *format);
+int	ft_typestring(t_format *format);
+int	ft_typevoid(t_format *format);
+int	ft_typeint(t_format *format);
+int	ft_typeunsint(t_format *format);
+int	ft_typehexa(t_format *format, char type);
+int	ft_printf(const char *fmt, ...);
+int	ft_padding(int width, int n, char c);
+long	ft_negnum(long n);
 
 #endif

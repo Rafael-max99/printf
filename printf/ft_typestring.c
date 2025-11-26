@@ -1,10 +1,18 @@
+
 #include "libftprintf.h"
 
 int	ft_typestring(t_format *format)
 {
 	if (!(*format).type.str)
-		(*format).type.str = "(null)";
-	(*format).ints.len = ft_strlen((*format).type.str);
+	{
+		/* when string is NULL and precision is specified, print nothing */
+		if ((*format).logic.point)
+			(*format).ints.len = 0;
+		else
+			(*format).type.str = "(null)";
+	}
+	if ((*format).type.str)
+		(*format).ints.len = ft_strlen((*format).type.str);
 	if ((*format).logic.point && (*format).logic.precision < (*format).ints.len)
 		(*format).ints.len = (*format).logic.precision;
 	if ((*format).flags.minus)
