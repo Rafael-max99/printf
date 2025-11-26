@@ -38,15 +38,14 @@ static int	ft_flagminus(t_format *format)
 
 static int	ft_flagzero(t_format *format)
 {
+	int	pad_zeros;
+
 	if ((*format).flags.zero && !(*format).logic.point)
 	{
-		/* print sign first, then zeros to fill width (sign accounted in ints.total) */
 		(*format).logic.printed += ft_putsign(format);
-		{
-			int pad_zeros = (*format).logic.width - (*format).ints.total;
-			if (pad_zeros > 0)
-				(*format).logic.printed += ft_padding(pad_zeros, 0, '0');
-		}
+		pad_zeros = (*format).logic.width - (*format).ints.total;
+		if (pad_zeros > 0)
+			(*format).logic.printed += ft_padding(pad_zeros, 0, '0');
 		if ((*format).ints.len > 0)
 		{
 			ft_putnbr((*format).ints.nb);
@@ -87,10 +86,8 @@ int	ft_typeint(t_format *format)
 		(*format).flags.zero = 0;
 		(*format).ints.total = (*format).ints.zeros + (*format).ints.len;
 	}
-	/* account for sign for negative numbers */
 	if ((*format).type.n < 0)
 		(*format).ints.total++;
-	/* account for explicit plus/space for non-negative numbers */
 	if ((*format).flags.plus && (*format).type.n >= 0)
 		(*format).ints.total++;
 	else if ((*format).flags.space && (*format).type.n >= 0)

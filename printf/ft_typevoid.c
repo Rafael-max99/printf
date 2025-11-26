@@ -1,14 +1,8 @@
 #include "libftprintf.h"
 
-int	ft_typevoid(t_format *format)
+static int	ft_nullptr(t_format *format)
 {
-	size_t	ptr;
-
-	ptr = (size_t)(*format).type.ptr;
-	/* NULL pointer should print (nil) on many systems */
-	if (ptr == 0)
-	{
-		(*format).ints.len = 5; /* length of "(nil)" */
+	(*format).ints.len = 5;
 		if ((*format).flags.minus)
 		{
 			ft_putstr("(nil)");
@@ -22,8 +16,15 @@ int	ft_typevoid(t_format *format)
 			(*format).logic.printed += (*format).ints.len;
 		}
 		return ((*format).logic.printed);
-	}
+}
 
+int	ft_typevoid(t_format *format)
+{
+	size_t	ptr;
+
+	ptr = (size_t)(*format).type.ptr;
+	if (ptr == 0)
+		return (ft_nullptr(format));
 	(*format).type.str = ft_hexa(ptr);
 	(*format).ints.len = ft_strlen((*format).type.str) + 2;
 	if ((*format).flags.minus)

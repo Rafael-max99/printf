@@ -76,5 +76,6 @@ int	ft_typehexa(t_format *format, char type);
 int	ft_printf(const char *fmt, ...);
 int	ft_padding(int width, int n, char c);
 long	ft_negnum(long n);
+int	ft_choseflags(const char *fmt, t_format *format);
 
 #endif

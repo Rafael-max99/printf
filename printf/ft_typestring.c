@@ -5,7 +5,6 @@ int	ft_typestring(t_format *format)
 {
 	if (!(*format).type.str)
 	{
-		/* when string is NULL and precision is specified, print nothing */
 		if ((*format).logic.point)
 			(*format).ints.len = 0;
 		else

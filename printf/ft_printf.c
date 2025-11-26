@@ -1,25 +1,5 @@
 #include "libftprintf.h"
 
-static int	ft_choseflags(const char *fmt, t_format *format)
-{
-	while (fmt[(*format).logic.ct] == '-' || fmt[(*format).logic.ct] == '0' || fmt[(*format).logic.ct] == '+' 
-			|| fmt[(*format).logic.ct] == ' ' || fmt[(*format).logic.ct] == '#')
-	{
-		if (fmt[(*format).logic.ct] == '-')
-			(*format).flags.minus = 1;
-		if (fmt[(*format).logic.ct] == '0')
-			(*format).flags.zero = 1;
-		if (fmt[(*format).logic.ct] == '+')
-			(*format).flags.plus = 1;
-		if (fmt[(*format).logic.ct] == ' ')
-			(*format).flags.space = 1;
-		if (fmt[(*format).logic.ct] == '#')
-			(*format).flags.hashtag = 1;
-		(*format).logic.ct++;
-	}
-	return ((*format).logic.ct);
-}
-
 static int	ft_widthprecision(const char *fmt, t_format *format)
 {
 	(*format).logic.width = 0;
@@ -49,7 +29,7 @@ static int	ft_chosetype1(const char *fmt, va_list *args, t_format *format)
 	if (fmt[(*format).logic.ct] == 'c')
 	{
 		(*format).type.c = va_arg(*args, int);
-		(*format).logic.printed += ft_typechar(format);
+		ft_typechar(format);
 		return ((*format).logic.ct + 1);
 	}
 	else if (fmt[(*format).logic.ct] == 's')
@@ -101,11 +81,21 @@ static int	ft_chosetype2(const char *fmt, va_list *args, t_format *format)
 	}
 }
 
+static int	ft_chosetypefunc(const char *fmt, va_list *args, t_format *format)
+{
+	int	temp_ct;
+
+	temp_ct = ft_chosetype1(fmt, args, format);
+	if (temp_ct)
+		return (temp_ct);
+	else
+		return (ft_chosetype2(fmt, args, format));
+}
+
 int	ft_printf(const char *fmt, ...)
 {
 	va_list	args;
 	t_format	format;
-	int	temp_ct;
 
 	format.flags = ft_resetflags();
 	format.logic = ft_resetlogic();
@@ -115,15 +105,10 @@ int	ft_printf(const char *fmt, ...)
 		if (fmt[format.logic.ct] == '%')
 		{
 			format.logic.ct++;
-			/* reset flags for this conversion (width/precision are reset in ft_widthprecision) */
 			format.flags = ft_resetflags();
 			format.logic.ct = ft_choseflags(fmt, &format);
 			format.logic.ct = ft_widthprecision(fmt, &format);
-			temp_ct = ft_chosetype1(fmt, &args, &format);
-			if (temp_ct)
-				format.logic.ct = temp_ct;
-			else
-				format.logic.ct = ft_chosetype2(fmt, &args, &format);
+			format.logic.ct = ft_chosetypefunc(fmt, &args, &format);
 		}
 		else
 		{

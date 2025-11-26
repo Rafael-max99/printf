@@ -71,6 +71,14 @@ static int	ft_noflag(t_format *format)
 
 int	ft_typehexa(t_format *format, char type)
 {
+	if ((*format).type.nu == 0 && (*format).logic.point && (*format).logic.precision == 0)
+    {
+        if ((*format).logic.width > 0)
+        {
+            (*format).logic.printed += ft_padding((*format).logic.width, 0, ' ');
+        }
+        return ((*format).logic.printed); 
+    }
 	(*format).hexa.num_char = ft_hexa((*format).type.nu);
 	(*format).hexa.prefix = ft_prefix(type, (*format).hexa.num_char);
 	(*format).ints.len = ft_strlen((*format).hexa.num_char);
