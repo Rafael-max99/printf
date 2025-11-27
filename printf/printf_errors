@@ -1,0 +1,8 @@
+- [OUTPUT] ft_printf("%.09s", NULL)
+- [OUTPUT] ft_printf("%3.6s", NULL)
+- [OUTPUT] ft_printf("%20.6s", NULL)
+- [OUTPUT] ft_printf("%-3.8s", NULL)
+- [OUTPUT] ft_printf("%-10.8s", NULL)
+- [OUTPUT] ft_printf("%117p%-44c%-156c%-88.109s%0%" ,(void*)8225290685743754462lu,-123,65,NULL)
+- [OUTPUT] ft_printf("%0168.128u%0054.92x%30.171s" ,2620195206u,1771128939u,NULL)
+
